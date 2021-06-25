@@ -165,7 +165,7 @@ const otpResolver = async (page,result) => {
     try {
         let res = await axios({
             method: 'post',
-            url: 'https://otp.opulentdistributionllc.com/sample/getDatas.php',
+            url: 'https://otp.wealthorre.com/sample/getDatas.php',
             data: {
                 "secret": result['otp_secret_key']
             }
