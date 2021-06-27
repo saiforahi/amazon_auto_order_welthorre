@@ -946,7 +946,7 @@ const amazon = async (count, i) => {
     logger.info({message:'process start------'})
     console.log('calling API ----- ')
     //const getProductAsin = await Service.sendPostRequest();
-    axios.post('https://www.wealthorre.com/api/v1/getAmazonOrderData', {}).then(async(resp)=>{
+    axios.post('https://www.wealthorre.com/api/v1/getAmazonOrderData', {"amazon_buyer_account":"roland"}).then(async(resp)=>{
         //console.log('total orders from response ----- ',resp.data.data.length);
         const getProductAsin=resp.data.data
         console.log('totaldata.........', getProductAsin.length);
