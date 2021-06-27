@@ -36,8 +36,8 @@ const captchaSolver = async (page) => {
             })
             console.log(captchaData.substring(1, 30), "....captchaData")
             var bodyFormData = new FormData();
-            console.log('captcha API key ----- ','e5b71c604308ec55d002a5dae309bc2c')
-            bodyFormData.append('key', 'e5b71c604308ec55d002a5dae309bc2c');
+            console.log('captcha API key ----- ','9cec06c00001a6be33fc8867f838e392')
+            bodyFormData.append('key', '9cec06c00001a6be33fc8867f838e392');
             bodyFormData.append('method', 'base64');
             bodyFormData.append('body', captchaData);
             bodyFormData.append('json', 1);
@@ -58,7 +58,7 @@ const captchaSolver = async (page) => {
                 captchaResponse = await axios({
                     url: "http://2captcha.com/res.php",
                     params: {
-                        key:'e5b71c604308ec55d002a5dae309bc2c',
+                        key:'9cec06c00001a6be33fc8867f838e392',
                         action: "get",
                         id: capRequestData.request,
                         json: 1
@@ -112,7 +112,7 @@ const secondCaptchaSolver = async (page) => {
             })
             console.log(captchaData.substring(1, 30), "....captchaData")
             var bodyFormData = new FormData();
-            bodyFormData.append('key', 'e5b71c604308ec55d002a5dae309bc2c');
+            bodyFormData.append('key', '9cec06c00001a6be33fc8867f838e392');
             bodyFormData.append('method', 'base64');
             bodyFormData.append('body', captchaData);
             bodyFormData.append('json', 1);
@@ -132,7 +132,7 @@ const secondCaptchaSolver = async (page) => {
                 captchaResponse = await axios({
                     url: "http://2captcha.com/res.php",
                     params: {
-                        key: 'e5b71c604308ec55d002a5dae309bc2c',
+                        key: '9cec06c00001a6be33fc8867f838e392',
                         action: "get",
                         id: capRequestData.request,
                         json: 1
