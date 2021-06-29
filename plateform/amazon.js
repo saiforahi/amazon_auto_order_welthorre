@@ -174,6 +174,16 @@ const otpResolver = async (page,result) => {
             let optCode = res.data.token;
             console.log('optCode--------', optCode);
             await page.waitForTimeout(4000);
+            if(await page.$('input[name="otpDeviceContext"]')){
+                await page.evaluate(() => {
+                    //auth-send-code  continue
+                    let stepVerification = document.querySelectorAll('input[name="otpDeviceContext"]');
+                    if (stepVerification && stepVerification.length > 0) {
+                        stepVerification[0].click();
+                    }
+                });
+            }
+            await page.waitForTimeout(4000);
             await page.evaluate(() => {
                 //auth-send-code  continue
                 let stepVerification = document.querySelectorAll('#auth-send-code');
@@ -241,7 +251,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
     let amazonProductPrice = 0, details = {}, amazonOrderNumber = '';
     console.log('proxy_ip------', result['proxy_ip'])
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         timeout: 0,
         ignoreHTTPSErrors: true,
         args: [
@@ -427,7 +437,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                         }
                         res();
                     })
-                }, 'Walmart123!');
+                }, result['password']);
                 await secondCaptchaSolver(productViewPage)
                 console.log('click to continue');
                 await productViewPage.waitForTimeout(4000);
