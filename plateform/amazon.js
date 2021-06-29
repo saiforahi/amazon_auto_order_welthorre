@@ -80,8 +80,6 @@ const captchaSolver = async (page) => {
                 console.log(button.length);
                 button[0].click()
             }, captchaResponse);
-            let imagePath1 = path.join(__dirname, "..", "/assets", `/img01.png`);
-            await page.screenshot({ path: imagePath1 });
         } else {
             return;
         }
@@ -283,21 +281,9 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         //console.log('-result-------------',result);
         productViewPage.setDefaultNavigationTimeout(0);
         await productViewPage.setViewport({ width: 1366, height: 700 });
-        //let platefromUrl = 'https://www.amazon.com/dp/' + asin;
-        let platefromUrl = 'https://www.amazon.com/';
+        let platefromUrl = 'https://www.amazon.com/dp/' + asin;
+        //let platefromUrl = 'https://www.amazon.com/';
         console.log('product asin ---- ',asin)
-        // try {
-        //     await useProxy(productViewPage, curl);
-        //     // await productViewPage.setRequestInterception(true);
-        //     // productViewPage.on('request', async req => {
-        //     //     await useProxy(req, curl);
-        //     // });
-        //     const data = await useProxy.lookup(productViewPage);
-        //     console.log('pageIP ------- ',data.ip);
-        // } catch (error) {
-        //     console.log(error)
-        // }
-        //await productViewPage.setRequestInterception(true);
         console.log('url to visit ----- ',platefromUrl)
         await productViewPage.goto(platefromUrl, {
             waitUntil: 'load', timeout: 0
@@ -306,6 +292,9 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         //     await captchaSolver(productViewPage);
         // }
         await captchaSolver(productViewPage);
+        await productViewPage.waitForTimeout(4000);
+        let imagePath1 = path.join(__dirname, "..", "/assets", `/img01.png`);
+        await productViewPage.screenshot({ path: imagePath1 });
         // if(await productViewPage.$('#glow-ingress-block')){
         //     await productViewPage.waitForTimeout(3000);
         //     await productViewPage.evaluate(()=>{
