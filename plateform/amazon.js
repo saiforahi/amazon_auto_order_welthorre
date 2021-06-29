@@ -344,10 +344,481 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
             }
         }
         
-        await productViewPage.waitForTimeout(3000);
-        let available = true
-        if(await productViewPage.$('#outOfStock')){
-            available = await productViewPage.evaluate(()=>{
+        console.log('orderPrice------', typeof orderPrice, orderPrice, '..amazonProductPrice.......', typeof amazonProductPrice, amazonProductPrice);
+        console.log('if calling-----------');
+        //One-time purchase:
+        await productViewPage.waitForTimeout(4000);
+        if(await productViewPage.$('#buyNew_cbb')){
+            await productViewPage.evaluate(() => {
+                return new Promise((res, rej) => {
+                    let OnetimepurchaseLink = document.querySelectorAll('#buyNew_cbb');
+                    if (OnetimepurchaseLink.length > 0) {
+                        OnetimepurchaseLink[0].click();
+                    }
+                    res()
+                })
+            });
+        }
+        await productViewPage.waitForTimeout(4000);
+        if (await productViewPage.$('#buy-now-button')) {
+            //selct qyt
+            let SelectedOption = await productViewPage.evaluate((result) => {
+                let isSelected = [];
+                let optionEl = document.getElementsByName("quantity");
+                if (optionEl && optionEl.length > 0) {
+                    optionEl = optionEl[0].options;
+                    for (let k = 0; k < optionEl.length; k++) {
+                        if (optionEl[k].text == result['Sum(aol.orderLineQuantity)']) {
+                            isSelected = optionEl[k].value
+                        }
+                    }
+                }
+                return isSelected;
+            }, result);
+            console.log('SelectedOption..272...', SelectedOption);
+            if(await productViewPage.$('select[name="quantity"]') && SelectedOption){
+                await productViewPage.select('select[name="quantity"]', SelectedOption);
+            }
+            
+            let buyNowButton = await productViewPage.$$('#buy-now-button');
+            console.log('buyNowButton-----', buyNowButton.length);
+            await buyNowButton[0].click();
+            // await productViewPage.waitForSelector("#ap_email", { visible: true, timeout: 0 });
+            console.log('enter email...', result['amazon_user_name']);
+            // await productViewPage.waitForTimeout(4000);
+            await productViewPage.waitForNavigation({ timeout: 0 });
+            //email
+            await productViewPage.evaluate(async (EMAIL) => {
+                return new Promise(async (res, rej) => {
+                    let emailEl = document.getElementById('ap_email');
+                    if (emailEl) {
+                        emailEl.value = EMAIL;
+                        // document.getElementById('continue').click();
+                        let continueButton = await document.querySelectorAll('#continue');
+                        continueButton[1].click();
+                    }
+
+                    res();
+                })
+            }, result['amazon_user_name']);
+            await productViewPage.waitForTimeout(4000);
+            //password
+            if(await productViewPage.$('#ap_password')){
+                console.log('enter password...', result['password']);
+                await productViewPage.evaluate((PASSWORD) => {
+                    return new Promise((res, rej) => {
+                        let passwordEl = document.getElementById('ap_password');
+                        if (passwordEl) {
+                            passwordEl.value = PASSWORD;
+                            let signInButton = document.getElementById('signInSubmit');
+                            signInButton.click();
+                            // document.getElementById('#signInSubmit').click();
+                        }
+
+                        res();
+                    })
+                }, result['password']);
+            }
+
+            //
+            await productViewPage.waitForTimeout(4000);
+            //confirm password
+            await productViewPage.evaluate((PASSWORD) => {
+                return new Promise((res, rej) => {
+                    let passwordEl = document.getElementById('ap_password');
+                    if (passwordEl) {
+                        passwordEl.value = PASSWORD;
+                    }
+                    res();
+                })
+            }, result['password']);
+            await secondCaptchaSolver(productViewPage)
+            console.log('click to continue');
+            await productViewPage.waitForTimeout(4000);
+            //confirm password
+            // console.log('Confirm password');
+            // await productViewPage.evaluate((PASSWORD) => {
+            //     return new Promise((res, rej) => {
+            //         let passwordEl = document.getElementById('ap_password');
+            //         if (passwordEl) {
+            //             passwordEl.value = PASSWORD;
+            //         }
+            //         res();
+            //     })
+            // }, 'Walmart123!');
+            await otpResolver(productViewPage,result);
+            //select address for Deliver
+            console.log('result--------', result);
+            await productViewPage.waitForNavigation({ timeout: 0 });
+            //turbo-checkout-pyo-button
+            await productViewPage.waitForTimeout(4000);
+            await productViewPage.evaluate(() => {
+                return new Promise((res, rej) => {
+                    let placeButton = document.querySelectorAll('#turbo-checkout-pyo-button');
+                    console.log(placeButton);
+                    if (placeButton.length > 0) {
+                        placeButton[0].click();
+                    }
+                    res()
+                })
+            });
+            //PO check
+            await productViewPage.waitForTimeout(4000);
+            if(await productViewPage.$('span.a-button-inner input[value="Continue"]')){
+                console.log('PO found and pressing continue ------ ')
+                await productViewPage.evaluate(()=>{
+                    return new Promise((res,rej)=>{
+                        let continue_btn=document.querySelector('span.a-button-inner input[value="Continue"]')
+                        continue_btn.click()
+                        res()
+                    })
+                })
+            }
+            //shipper add
+            if(await productViewPage.$$('.a-color-base.clickable-heading.expand-collapsed-panel-trigger').length>0){
+                console.log('adding shipper ------ ')
+                await productViewPage.waitForTimeout(4000);
+                await productViewPage.evaluate(() => {
+                    return new Promise((res, rej) => {
+                        let addButton = document.querySelectorAll('.a-color-base.clickable-heading.expand-collapsed-panel-trigger');
+                        console.log(addButton);
+                        if (addButton.length > 0) {
+                            addButton[1].click();
+                        }
+                        res()
+                    })
+                });
+            }
+
+            await productViewPage.waitForTimeout(4000);
+            await productViewPage.evaluate(() => {
+                return new Promise((res, rej) => {
+                    let addAddresslink = document.querySelectorAll('#add-new-address-popover-link');
+                    console.log(addAddresslink);
+                    if (addAddresslink.length > 0) {
+                        addAddresslink[0].click();
+                    }
+                    res()
+                })
+            });
+
+            //Add a new address
+            await productViewPage.waitForTimeout(4000);
+            await productViewPage.evaluate((result) => {
+                return new Promise((res, rej) => {
+                    let addAddressEl = document.querySelectorAll('.a-input-text-group.a-spacing-medium.a-spacing-top-medium');
+                    if (addAddressEl.length > 0) {
+                        let fullNameSelector = document.querySelectorAll('#address-ui-widgets-enterAddressFullName');
+                        fullNameSelector[0].value = result.ship_name;
+                        let phoneNumberSelector = document.querySelectorAll('#address-ui-widgets-enterAddressPhoneNumber');
+                        phoneNumberSelector[0].value = result.ship_phone;
+                        let addressSelector = document.querySelectorAll('#address-ui-widgets-enterAddressLine1');
+                        addressSelector[0].value = result.ship_address1;
+                        let CitySelector = document.querySelectorAll('#address-ui-widgets-enterAddressCity');
+                        CitySelector[0].value = result.ship_city;
+                        let zipCodeSelector = document.querySelectorAll('#address-ui-widgets-enterAddressPostalCode');
+                        zipCodeSelector[0].value = result.ship_postalCode;
+                    }
+                    res()
+                })
+            }, result);
+
+            //select state
+            await productViewPage.waitForTimeout(3000)
+            let selectedState = await productViewPage.evaluate((result) => {
+                let stateValue = '';
+                let optionEl = document.getElementById("address-ui-widgets-enterAddressStateOrRegion-dropdown-nativeId");
+                if (optionEl) {
+                    optionEl = optionEl.options;
+                    for (let k = 0; k < optionEl.length; k++) {
+                        if (optionEl[k].value == result.ship_state) {
+                            stateValue = optionEl[k].value
+                        }
+                    }
+                }
+                return stateValue;
+            }, result);
+            console.log(typeof selectedState, 'selectedState------', selectedState);
+            if (selectedState) {
+                await productViewPage.select('select[name="address-ui-widgets-enterAddressStateOrRegion"]', selectedState);
+            }
+            await productViewPage.waitForTimeout(4000);
+            await productViewPage.evaluate(() => {
+                return new Promise((res, rej) => {
+                    let usethisaddressButton = document.querySelectorAll('#address-ui-widgets-form-submit-button-announce');
+                    if (usethisaddressButton.length > 0) {
+                        usethisaddressButton[0].click();
+                    }
+                    res()
+                })
+            });
+            console.log('product DeliveryAddressButton');
+            await productViewPage.waitForTimeout(4000);
+            if(await productViewPage.$('span.a-button-inner input[name="address-ui-widgets-saveOriginalOrSuggestedAddress"]')){
+                await productViewPage.evaluate(()=>{
+                    return new Promise((res,rej)=>{
+                        let save_address_btn = document.querySelector('span.a-button-inner input[name="address-ui-widgets-saveOriginalOrSuggestedAddress"]')
+                        save_address_btn.click()
+                        res()
+                    })
+                })
+            }
+            // await productViewPage.evaluate(() => {
+            //     return new Promise((res, rej) => {
+            //         let DeliveryAddressButton = document.querySelectorAll('.ship-to-this-address.a-button a');
+            //         console.log(DeliveryAddressButton);
+            //         if (DeliveryAddressButton.length > 0) {
+            //             DeliveryAddressButton[0].click();
+
+            //         }
+            //         res()
+            //     })
+            // });
+            
+            //await productViewPage.waitForNavigation({waitUntil : 'domcontentloaded'})
+            await productViewPage.waitForTimeout(5000)
+            if(await productViewPage.$('input[name="ppw-instrumentRowSelection"')){
+                console.log('payment option found ---- ')
+                await productViewPage.evaluate(()=>{
+                    return new Promise((res,rej)=>{
+                        let continueButton=document.querySelector('input[name="ppw-instrumentRowSelection"')
+                        if(continueButton){
+                            continueButton.click()
+                        }
+                        res()
+                    })
+                })
+            }
+
+            await productViewPage.waitForTimeout(5000)
+            if(await productViewPage.$('input[name="ppw-widgetEvent:SetPaymentPlanSelectContinueEvent"]')){
+                console.log('payment option button found ---- ')
+                await productViewPage.evaluate(()=>{
+                    return new Promise((res,rej)=>{
+                        let continueBtn = document.getElementsByName('ppw-widgetEvent:SetPaymentPlanSelectContinueEvent')[0]
+                        continueBtn.click()
+                        res()
+                    })
+                })
+            }
+            
+            await productViewPage.waitForTimeout(10000)
+            let is_break_even_price_higher = ''
+            if(await productViewPage.$('#subtotals-marketplace-table')){
+                console.log('checking break even price --- ')
+                is_break_even_price_higher=await productViewPage.evaluate((result)=>{
+                    return new Promise((res,rej)=>{
+                        let rows = document.querySelectorAll('#subtotals-marketplace-table tbody tr')
+                        let tableData = rows[rows.length-1].querySelector('td.a-color-price.a-size-medium.a-text-right.grand-total-price.aok-nowrap.a-text-bold.a-nowrap')
+                        let price = tableData.innerText.replace('$','').trim()
+                        if(parseFloat(price) > parseFloat(result['break_even_price'])){
+                            //is_break_even_price_lower=true
+                            res(false)
+                        }
+                        else{
+                            //is_break_even_price_lower=false
+                            res(true)
+                        }
+                    })
+                },result)
+                console.log('break even price status ----- ',is_break_even_price_higher)
+            }
+            await productViewPage.waitForTimeout(5000)
+            let cart_price = 0
+            if(await productViewPage.$('#subtotals-marketplace-table')){
+                console.log('collecting cart price --- ')
+                cart_price=await productViewPage.evaluate(()=>{
+                    return new Promise((res,rej)=>{
+                        let rows = document.querySelectorAll('#subtotals-marketplace-table tbody tr')
+                        let tableData = rows[rows.length-1].querySelector('td.a-color-price.a-size-medium.a-text-right.grand-total-price.aok-nowrap.a-text-bold.a-nowrap')
+                        let price = tableData.innerText.replace('$','').trim()
+                        //cart_price=Number(price).toFixed(2)
+                        res(Number(price).toFixed(2))
+                    })
+                })
+            }
+            console.log('cart price ---- ',cart_price)
+            if(1 == 1 && is_break_even_price_higher == true ){
+                await productViewPage.waitForTimeout(5000)
+                console.log('pressing payment continue')
+                if(await productViewPage.$('input[name="ppw-widgetEvent:SetPaymentPlanSelectContinueEvent"')){
+                    console.log('payment continue btn found ---- ')
+                    await productViewPage.evaluate(()=>{
+                        return new Promise((res,rej)=>{
+                            let continueButton=document.querySelector('input[name="ppw-widgetEvent:SetPaymentPlanSelectContinueEvent"')
+                            if(continueButton){
+                                continueButton.click()
+                            }
+                            res()
+                        })
+                    })
+                }
+                
+                //new customer order placing
+                console.log('order button place order ');
+                await productViewPage.waitForTimeout(5000)
+                await productViewPage.evaluate(()=>{
+                    return new Promise((res,rej)=>{
+                        let element1=document.querySelector('#placeYourOrder span input[name="placeYourOrder1"]')
+                        let element2=document.querySelectorAll('#submitOrderButtonId span.a-button-inner input')[0]
+                        if(element1){
+                            console.log('place order button 1 found ---');
+                            element1.click() 
+                        }
+                        else if(element2){
+                            console.log('place order button 2 found ---');
+                            element2.click()
+                        }
+                        res()
+                    })
+                })
+                // console.log('ContinueButton click for address');
+                // await productViewPage.waitForNavigation({ waitUntil: 'domcontentloaded' })
+                // await productViewPage.waitForTimeout(3000);
+                // if (await productViewPage.$('.a-button.a-button-span12.a-button-primary.pmts-button-input')) {
+                //     await productViewPage.evaluate(() => {
+                //         return new Promise((res, rej) => {
+                //             //.a-button.a-button-span12.a-button-primary.pmts-button-input
+                //             let ContinueButton = document.querySelectorAll('.a-button.a-button-span12.a-button-primary.pmts-button-input');
+                //             console.log('continue----', ContinueButton);
+                //             if (ContinueButton && ContinueButton.length > 0) {
+                //                 ContinueButton[0].click();
+                //             }
+                //             res();
+                //         })
+                //     })
+                // }
+                //console.log('Place your order page');
+                // Place your order  #placeYourOrder
+                //document.querySelectorAll('.a-button-inner.a-button-span12.buy-button-height-1')[0].click()
+
+                // await productViewPage.waitForTimeout(3000);
+                //payment button add
+                //console.log('order button ');
+                // await productViewPage.evaluate(() => {
+                //     return new Promise((res, rej) => {
+                //         let ContinueButton = document.querySelectorAll('#orderSummaryPrimaryActionBtn input');
+                //         console.log('continue----', ContinueButton);
+                //         if (ContinueButton && ContinueButton.length > 0) {
+                //             ContinueButton[0].click();
+                //         }
+                //         res();
+                //     })
+                // })
+                
+                // await productViewPage.waitForNavigation({waitUntil:'domcontentloaded'});
+                // await productViewPage.waitForTimeout(4000);
+                // await productViewPage.evaluate(() => {
+                //     return new Promise((res, rej) => {
+                //         //#submitOrderButtonId input
+                //         let ContinueButton = document.querySelectorAll('#submitOrderButtonId span.a-button-inner input');
+                //         console.log('continue----', ContinueButton);
+                //         if (ContinueButton && ContinueButton.length > 0) {
+                //             ContinueButton[0].click();
+                //         }
+                //         res();
+                //     })
+                // })
+                //Place this duplicate order  
+                //a-button-text
+                //console.log('palce orde.duplicate...');
+                // await productViewPage.waitForTimeout(4000);
+                // await productViewPage.evaluate(() => {
+                //     return new Promise((res, rej) => {
+                //         let buttonSelector = document.querySelectorAll('.a-button-text');
+                //         console.log('continue----', buttonSelector);
+                //         if (buttonSelector && buttonSelector.length > 0) {
+                //             buttonSelector[0].click();
+                //         }
+                //         res();
+                //     })
+                // })
+
+                console.log('order view link show.');
+                //orderId orderlink
+                await productViewPage.waitForNavigation({waitUntil:'domcontentloaded'});
+                await productViewPage.goto('https://www.amazon.com/gp/css/order-history?ref_=abn_bnav_ya_ad_orders',{
+                    waitUntil: 'load', timeout: 0
+                })
+                // await productViewPage.waitForTimeout(4000);
+                // await productViewPage.hover('#nav-link-yourAccount')
+                // await productViewPage.waitForTimeout(4000);
+                // await productViewPage.evaluate(() => {
+                //     return new Promise((res, rej) => {
+                //         //a-link-emphasis
+                //         let yourOrders= document.getElementById('nav_prefetch_yourorders')
+                //         let selector = document.querySelectorAll('#widget-accountLevelActions div.celwidget span.celwidget a.a-link-emphasis');
+                //         console.log('continue----', selector);
+                //         if (selector && selector.length > 0) {
+                //             selector[0].click();
+                //         }
+                //         else if(yourOrders){
+                //             yourOrders.click()
+                //         }
+                //         res();
+                //     })
+                // })
+
+                console.log('amazonOrderId-----88--');
+                await productViewPage.waitForTimeout(3000)
+                let imagePath = path.join(__dirname, "..", "/assets", `/img1.png`);
+                // await saveErrorImg(productViewPage);
+                await productViewPage.screenshot({ path: imagePath });
+                // await productViewPage.waitForSelector("#ordersContainer .a-box-group.a-spacing-base .a-fixed-right-grid-col.actions.a-col-right", { visible: true });
+                let amazonOrderId = await productViewPage.evaluate(async () => {
+                    return new Promise((res,rej)=>{
+                        let id = '';
+                        if(document.querySelectorAll('div.a-row.a-size-mini span.a-color-secondary.value').length>0){
+                            console.log('html order element',document.querySelector('div.a-row.a-size-mini span.a-color-secondary').textContent)
+                            let element= document.querySelectorAll('div.a-row.a-size-mini span.a-color-secondary.value')[0]
+                            if(!element.textContent.includes('Order') && !element.textContent.includes('Total') && !element.textContent.includes('Ship to')&& !element.textContent.includes('Placed by')){
+                                // order_numbers.push(element.innerText)
+                                id=element.innerText
+                            }
+                        }
+                        else if(document.querySelectorAll('span.a-color-secondary.value bdi[dir="ltr"]').length>0){
+                            console.log('html order element',document.querySelector('span.a-color-secondary.value bdi[dir="ltr"]').textContent)
+                            let element= document.querySelectorAll('span.a-color-secondary.value bdi[dir="ltr"]')[0]
+                            if(element.textContent.length==17 && !element.textContent.includes('Order') && !element.textContent.includes('SHIP TO')&& !element.textContent.includes('PLACED BY') && !element.textContent.includes('Total')){
+                                // order_numbers.push(element.innerText)
+                                id=element.innerText
+                            }
+                        }
+                        res(id);
+                    })
+                });
+                let imagePath1 = path.join(__dirname, "..", "/assets", `/img2.png`);
+                // await saveErrorImg(productViewPage);
+                await productViewPage.screenshot({ path: imagePath1 });
+                console.log('amazonOrderId-------', amazonOrderId);
+                details = {
+                    asin: asin,
+                    amazon_order_number: amazonOrderId,
+                    purchaseOrderId: purchaseOrderId,
+                    customerOrderId: customerOrderId
+                }
+                console.log('details-----', details);
+                if (details.amazon_order_number != '') {
+                    Service.update_amazon_order_number_API(result['ref_order_id'],details.amazon_order_number,cart_price);
+                    orderIdlogger.info({ asin: asin, purchaseOrderId: purchaseOrderId, amazon_order_number: amazonOrderId })
+                }
+            }
+            else if(is_break_even_price_higher == false){
+                details = {
+                    asin: asin,
+                    amazon_order_number: 'loss',
+                    purchaseOrderId: purchaseOrderId,
+                    customerOrderId: customerOrderId
+                }
+                console.log('details-----', details);
+                if (details.amazon_order_number != '') {
+                    Service.update_amazon_order_number_API(result['ref_order_id'],details.amazon_order_number,cart_price);
+                    orderIdlogger.info({ asin: asin, purchaseOrderId: purchaseOrderId, amazon_order_number: 'loss' })
+                }
+            }
+        }
+        else if(await productViewPage.$('#outOfStock')){
+            let available  = await productViewPage.evaluate(()=>{
                 return new Promise((res,rej)=>{
                     if(document.getElementById('outOfStock').style.display == 'block'){
                         res(false)
@@ -369,479 +840,6 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                 if (details.amazon_order_number != '') {
                     Service.update_amazon_order_number_API(result['ref_order_id'],details.amazon_order_number,'os');
                     orderIdlogger.info({ asin: asin, purchaseOrderId: purchaseOrderId, amazon_order_number: 'out of stock' })
-                }
-            }
-        }
-        else {
-            console.log('orderPrice------', typeof orderPrice, orderPrice, '..amazonProductPrice.......', typeof amazonProductPrice, amazonProductPrice);
-            console.log('if calling-----------');
-            //One-time purchase:
-            await productViewPage.waitForTimeout(4000);
-            await productViewPage.evaluate(() => {
-                return new Promise((res, rej) => {
-                    let OnetimepurchaseLink = document.querySelectorAll('#buyNew_cbb');
-                    if (OnetimepurchaseLink.length > 0) {
-                        OnetimepurchaseLink[0].click();
-                    }
-                    res()
-                })
-            });
-            await productViewPage.waitForTimeout(4000);
-            if (await productViewPage.$('#buy-now-button')) {
-                //selct qyt
-                let SelectedOption = await productViewPage.evaluate((result) => {
-                    let isSelected = [];
-                    let optionEl = document.getElementsByName("quantity");
-                    if (optionEl && optionEl.length > 0) {
-                        optionEl = optionEl[0].options;
-                        for (let k = 0; k < optionEl.length; k++) {
-                            if (optionEl[k].text == result['Sum(aol.orderLineQuantity)']) {
-                                isSelected = optionEl[k].value
-                            }
-                        }
-                    }
-                    return isSelected;
-                }, result);
-                console.log('SelectedOption..272...', SelectedOption);
-                if(await productViewPage.$('select[name="quantity"]') && SelectedOption){
-                    await productViewPage.select('select[name="quantity"]', SelectedOption);
-                }
-                
-                let buyNowButton = await productViewPage.$$('#buy-now-button');
-                console.log('buyNowButton-----', buyNowButton.length);
-                await buyNowButton[0].click();
-                // await productViewPage.waitForSelector("#ap_email", { visible: true, timeout: 0 });
-                console.log('enter email...', result['amazon_user_name']);
-                // await productViewPage.waitForTimeout(4000);
-                await productViewPage.waitForNavigation({ timeout: 0 });
-                //email
-                await productViewPage.evaluate(async (EMAIL) => {
-                    return new Promise(async (res, rej) => {
-                        let emailEl = document.getElementById('ap_email');
-                        if (emailEl) {
-                            emailEl.value = EMAIL;
-                            // document.getElementById('continue').click();
-                            let continueButton = await document.querySelectorAll('#continue');
-                            continueButton[1].click();
-                        }
-
-                        res();
-                    })
-                }, result['amazon_user_name']);
-                await productViewPage.waitForTimeout(4000);
-                //password
-                if(await productViewPage.$('#ap_password')){
-                    console.log('enter password...', result['password']);
-                    await productViewPage.evaluate((PASSWORD) => {
-                        return new Promise((res, rej) => {
-                            let passwordEl = document.getElementById('ap_password');
-                            if (passwordEl) {
-                                passwordEl.value = PASSWORD;
-                                let signInButton = document.getElementById('signInSubmit');
-                                signInButton.click();
-                                // document.getElementById('#signInSubmit').click();
-                            }
-
-                            res();
-                        })
-                    }, result['password']);
-                }
-
-                //
-                await productViewPage.waitForTimeout(4000);
-                //confirm password
-                await productViewPage.evaluate((PASSWORD) => {
-                    return new Promise((res, rej) => {
-                        let passwordEl = document.getElementById('ap_password');
-                        if (passwordEl) {
-                            passwordEl.value = PASSWORD;
-                        }
-                        res();
-                    })
-                }, result['password']);
-                await secondCaptchaSolver(productViewPage)
-                console.log('click to continue');
-                await productViewPage.waitForTimeout(4000);
-                //confirm password
-                // console.log('Confirm password');
-                // await productViewPage.evaluate((PASSWORD) => {
-                //     return new Promise((res, rej) => {
-                //         let passwordEl = document.getElementById('ap_password');
-                //         if (passwordEl) {
-                //             passwordEl.value = PASSWORD;
-                //         }
-                //         res();
-                //     })
-                // }, 'Walmart123!');
-                await otpResolver(productViewPage,result);
-                //select address for Deliver
-                console.log('result--------', result);
-                await productViewPage.waitForNavigation({ timeout: 0 });
-                //turbo-checkout-pyo-button
-                await productViewPage.waitForTimeout(4000);
-                await productViewPage.evaluate(() => {
-                    return new Promise((res, rej) => {
-                        let placeButton = document.querySelectorAll('#turbo-checkout-pyo-button');
-                        console.log(placeButton);
-                        if (placeButton.length > 0) {
-                            placeButton[0].click();
-                        }
-                        res()
-                    })
-                });
-                //PO check
-                await productViewPage.waitForTimeout(4000);
-                if(await productViewPage.$('span.a-button-inner input[value="Continue"]')){
-                    console.log('PO found and pressing continue ------ ')
-                    await productViewPage.evaluate(()=>{
-                        return new Promise((res,rej)=>{
-                            let continue_btn=document.querySelector('span.a-button-inner input[value="Continue"]')
-                            continue_btn.click()
-                            res()
-                        })
-                    })
-                }
-                //shipper add
-                if(await productViewPage.$$('.a-color-base.clickable-heading.expand-collapsed-panel-trigger').length>0){
-                    console.log('adding shipper ------ ')
-                    await productViewPage.waitForTimeout(4000);
-                    await productViewPage.evaluate(() => {
-                        return new Promise((res, rej) => {
-                            let addButton = document.querySelectorAll('.a-color-base.clickable-heading.expand-collapsed-panel-trigger');
-                            console.log(addButton);
-                            if (addButton.length > 0) {
-                                addButton[1].click();
-                            }
-                            res()
-                        })
-                    });
-                }
-
-                await productViewPage.waitForTimeout(4000);
-                await productViewPage.evaluate(() => {
-                    return new Promise((res, rej) => {
-                        let addAddresslink = document.querySelectorAll('#add-new-address-popover-link');
-                        console.log(addAddresslink);
-                        if (addAddresslink.length > 0) {
-                            addAddresslink[0].click();
-                        }
-                        res()
-                    })
-                });
-
-                //Add a new address
-                await productViewPage.waitForTimeout(4000);
-                await productViewPage.evaluate((result) => {
-                    return new Promise((res, rej) => {
-                        let addAddressEl = document.querySelectorAll('.a-input-text-group.a-spacing-medium.a-spacing-top-medium');
-                        if (addAddressEl.length > 0) {
-                            let fullNameSelector = document.querySelectorAll('#address-ui-widgets-enterAddressFullName');
-                            fullNameSelector[0].value = result.ship_name;
-                            let phoneNumberSelector = document.querySelectorAll('#address-ui-widgets-enterAddressPhoneNumber');
-                            phoneNumberSelector[0].value = result.ship_phone;
-                            let addressSelector = document.querySelectorAll('#address-ui-widgets-enterAddressLine1');
-                            addressSelector[0].value = result.ship_address1;
-                            let CitySelector = document.querySelectorAll('#address-ui-widgets-enterAddressCity');
-                            CitySelector[0].value = result.ship_city;
-                            let zipCodeSelector = document.querySelectorAll('#address-ui-widgets-enterAddressPostalCode');
-                            zipCodeSelector[0].value = result.ship_postalCode;
-                        }
-                        res()
-                    })
-                }, result);
-
-                //select state
-                await productViewPage.waitForTimeout(3000)
-                let selectedState = await productViewPage.evaluate((result) => {
-                    let stateValue = '';
-                    let optionEl = document.getElementById("address-ui-widgets-enterAddressStateOrRegion-dropdown-nativeId");
-                    if (optionEl) {
-                        optionEl = optionEl.options;
-                        for (let k = 0; k < optionEl.length; k++) {
-                            if (optionEl[k].value == result.ship_state) {
-                                stateValue = optionEl[k].value
-                            }
-                        }
-                    }
-                    return stateValue;
-                }, result);
-                console.log(typeof selectedState, 'selectedState------', selectedState);
-                if (selectedState) {
-                    await productViewPage.select('select[name="address-ui-widgets-enterAddressStateOrRegion"]', selectedState);
-                }
-                await productViewPage.waitForTimeout(4000);
-                await productViewPage.evaluate(() => {
-                    return new Promise((res, rej) => {
-                        let usethisaddressButton = document.querySelectorAll('#address-ui-widgets-form-submit-button-announce');
-                        if (usethisaddressButton.length > 0) {
-                            usethisaddressButton[0].click();
-                        }
-                        res()
-                    })
-                });
-                console.log('product DeliveryAddressButton');
-                await productViewPage.waitForTimeout(4000);
-                if(await productViewPage.$('span.a-button-inner input[name="address-ui-widgets-saveOriginalOrSuggestedAddress"]')){
-                    await productViewPage.evaluate(()=>{
-                        return new Promise((res,rej)=>{
-                            let save_address_btn = document.querySelector('span.a-button-inner input[name="address-ui-widgets-saveOriginalOrSuggestedAddress"]')
-                            save_address_btn.click()
-                            res()
-                        })
-                    })
-                }
-                // await productViewPage.evaluate(() => {
-                //     return new Promise((res, rej) => {
-                //         let DeliveryAddressButton = document.querySelectorAll('.ship-to-this-address.a-button a');
-                //         console.log(DeliveryAddressButton);
-                //         if (DeliveryAddressButton.length > 0) {
-                //             DeliveryAddressButton[0].click();
-
-                //         }
-                //         res()
-                //     })
-                // });
-                
-                //await productViewPage.waitForNavigation({waitUntil : 'domcontentloaded'})
-                await productViewPage.waitForTimeout(5000)
-                if(await productViewPage.$('input[name="ppw-instrumentRowSelection"')){
-                    console.log('payment option found ---- ')
-                    await productViewPage.evaluate(()=>{
-                        return new Promise((res,rej)=>{
-                            let continueButton=document.querySelector('input[name="ppw-instrumentRowSelection"')
-                            if(continueButton){
-                                continueButton.click()
-                            }
-                            res()
-                        })
-                    })
-                }
-
-                await productViewPage.waitForTimeout(5000)
-                if(await productViewPage.$('input[name="ppw-widgetEvent:SetPaymentPlanSelectContinueEvent"]')){
-                    console.log('payment option button found ---- ')
-                    await productViewPage.evaluate(()=>{
-                        return new Promise((res,rej)=>{
-                            let continueBtn = document.getElementsByName('ppw-widgetEvent:SetPaymentPlanSelectContinueEvent')[0]
-                            continueBtn.click()
-                            res()
-                        })
-                    })
-                }
-                
-                await productViewPage.waitForTimeout(10000)
-                let is_break_even_price_higher = ''
-                if(await productViewPage.$('#subtotals-marketplace-table')){
-                    console.log('checking break even price --- ')
-                    is_break_even_price_higher=await productViewPage.evaluate((result)=>{
-                        return new Promise((res,rej)=>{
-                            let rows = document.querySelectorAll('#subtotals-marketplace-table tbody tr')
-                            let tableData = rows[rows.length-1].querySelector('td.a-color-price.a-size-medium.a-text-right.grand-total-price.aok-nowrap.a-text-bold.a-nowrap')
-                            let price = tableData.innerText.replace('$','').trim()
-                            if(parseFloat(price) > parseFloat(result['break_even_price'])){
-                                //is_break_even_price_lower=true
-                                res(false)
-                            }
-                            else{
-                                //is_break_even_price_lower=false
-                                res(true)
-                            }
-                        })
-                    },result)
-                    console.log('break even price status ----- ',is_break_even_price_higher)
-                }
-                await productViewPage.waitForTimeout(5000)
-                let cart_price = 0
-                if(await productViewPage.$('#subtotals-marketplace-table')){
-                    console.log('collecting cart price --- ')
-                    cart_price=await productViewPage.evaluate(()=>{
-                        return new Promise((res,rej)=>{
-                            let rows = document.querySelectorAll('#subtotals-marketplace-table tbody tr')
-                            let tableData = rows[rows.length-1].querySelector('td.a-color-price.a-size-medium.a-text-right.grand-total-price.aok-nowrap.a-text-bold.a-nowrap')
-                            let price = tableData.innerText.replace('$','').trim()
-                            //cart_price=Number(price).toFixed(2)
-                            res(Number(price).toFixed(2))
-                        })
-                    })
-                }
-                console.log('cart price ---- ',cart_price)
-                if(1 == 1 && is_break_even_price_higher == true ){
-                    await productViewPage.waitForTimeout(5000)
-                    console.log('pressing payment continue')
-                    if(await productViewPage.$('input[name="ppw-widgetEvent:SetPaymentPlanSelectContinueEvent"')){
-                        console.log('payment continue btn found ---- ')
-                        await productViewPage.evaluate(()=>{
-                            return new Promise((res,rej)=>{
-                                let continueButton=document.querySelector('input[name="ppw-widgetEvent:SetPaymentPlanSelectContinueEvent"')
-                                if(continueButton){
-                                    continueButton.click()
-                                }
-                                res()
-                            })
-                        })
-                    }
-                    
-                    //new customer order placing
-                    console.log('order button place order ');
-                    await productViewPage.waitForTimeout(5000)
-                    await productViewPage.evaluate(()=>{
-                        return new Promise((res,rej)=>{
-                            let element1=document.querySelector('#placeYourOrder span input[name="placeYourOrder1"]')
-                            let element2=document.querySelectorAll('#submitOrderButtonId span.a-button-inner input')[0]
-                            if(element1){
-                                console.log('place order button 1 found ---');
-                                element1.click() 
-                            }
-                            else if(element2){
-                                console.log('place order button 2 found ---');
-                                element2.click()
-                            }
-                            res()
-                        })
-                    })
-                    // console.log('ContinueButton click for address');
-                    // await productViewPage.waitForNavigation({ waitUntil: 'domcontentloaded' })
-                    // await productViewPage.waitForTimeout(3000);
-                    // if (await productViewPage.$('.a-button.a-button-span12.a-button-primary.pmts-button-input')) {
-                    //     await productViewPage.evaluate(() => {
-                    //         return new Promise((res, rej) => {
-                    //             //.a-button.a-button-span12.a-button-primary.pmts-button-input
-                    //             let ContinueButton = document.querySelectorAll('.a-button.a-button-span12.a-button-primary.pmts-button-input');
-                    //             console.log('continue----', ContinueButton);
-                    //             if (ContinueButton && ContinueButton.length > 0) {
-                    //                 ContinueButton[0].click();
-                    //             }
-                    //             res();
-                    //         })
-                    //     })
-                    // }
-                    //console.log('Place your order page');
-                    // Place your order  #placeYourOrder
-                    //document.querySelectorAll('.a-button-inner.a-button-span12.buy-button-height-1')[0].click()
-
-                    // await productViewPage.waitForTimeout(3000);
-                    //payment button add
-                    //console.log('order button ');
-                    // await productViewPage.evaluate(() => {
-                    //     return new Promise((res, rej) => {
-                    //         let ContinueButton = document.querySelectorAll('#orderSummaryPrimaryActionBtn input');
-                    //         console.log('continue----', ContinueButton);
-                    //         if (ContinueButton && ContinueButton.length > 0) {
-                    //             ContinueButton[0].click();
-                    //         }
-                    //         res();
-                    //     })
-                    // })
-                    
-                    // await productViewPage.waitForNavigation({waitUntil:'domcontentloaded'});
-                    // await productViewPage.waitForTimeout(4000);
-                    // await productViewPage.evaluate(() => {
-                    //     return new Promise((res, rej) => {
-                    //         //#submitOrderButtonId input
-                    //         let ContinueButton = document.querySelectorAll('#submitOrderButtonId span.a-button-inner input');
-                    //         console.log('continue----', ContinueButton);
-                    //         if (ContinueButton && ContinueButton.length > 0) {
-                    //             ContinueButton[0].click();
-                    //         }
-                    //         res();
-                    //     })
-                    // })
-                    //Place this duplicate order  
-                    //a-button-text
-                    //console.log('palce orde.duplicate...');
-                    // await productViewPage.waitForTimeout(4000);
-                    // await productViewPage.evaluate(() => {
-                    //     return new Promise((res, rej) => {
-                    //         let buttonSelector = document.querySelectorAll('.a-button-text');
-                    //         console.log('continue----', buttonSelector);
-                    //         if (buttonSelector && buttonSelector.length > 0) {
-                    //             buttonSelector[0].click();
-                    //         }
-                    //         res();
-                    //     })
-                    // })
-
-                    console.log('order view link show.');
-                    //orderId orderlink
-                    await productViewPage.waitForNavigation({waitUntil:'domcontentloaded'});
-                    await productViewPage.goto('https://www.amazon.com/gp/css/order-history?ref_=abn_bnav_ya_ad_orders',{
-                        waitUntil: 'load', timeout: 0
-                    })
-                    // await productViewPage.waitForTimeout(4000);
-                    // await productViewPage.hover('#nav-link-yourAccount')
-                    // await productViewPage.waitForTimeout(4000);
-                    // await productViewPage.evaluate(() => {
-                    //     return new Promise((res, rej) => {
-                    //         //a-link-emphasis
-                    //         let yourOrders= document.getElementById('nav_prefetch_yourorders')
-                    //         let selector = document.querySelectorAll('#widget-accountLevelActions div.celwidget span.celwidget a.a-link-emphasis');
-                    //         console.log('continue----', selector);
-                    //         if (selector && selector.length > 0) {
-                    //             selector[0].click();
-                    //         }
-                    //         else if(yourOrders){
-                    //             yourOrders.click()
-                    //         }
-                    //         res();
-                    //     })
-                    // })
-
-                    console.log('amazonOrderId-----88--');
-                    await productViewPage.waitForTimeout(3000)
-                    let imagePath = path.join(__dirname, "..", "/assets", `/img1.png`);
-                    // await saveErrorImg(productViewPage);
-                    await productViewPage.screenshot({ path: imagePath });
-                    // await productViewPage.waitForSelector("#ordersContainer .a-box-group.a-spacing-base .a-fixed-right-grid-col.actions.a-col-right", { visible: true });
-                    let amazonOrderId = await productViewPage.evaluate(async () => {
-                        return new Promise((res,rej)=>{
-                            let id = '';
-                            if(document.querySelectorAll('div.a-row.a-size-mini span.a-color-secondary.value').length>0){
-                                console.log('html order element',document.querySelector('div.a-row.a-size-mini span.a-color-secondary').textContent)
-                                let element= document.querySelectorAll('div.a-row.a-size-mini span.a-color-secondary.value')[0]
-                                if(!element.textContent.includes('Order') && !element.textContent.includes('Total') && !element.textContent.includes('Ship to')&& !element.textContent.includes('Placed by')){
-                                    // order_numbers.push(element.innerText)
-                                    id=element.innerText
-                                }
-                            }
-                            else if(document.querySelectorAll('span.a-color-secondary.value bdi[dir="ltr"]').length>0){
-                                console.log('html order element',document.querySelector('span.a-color-secondary.value bdi[dir="ltr"]').textContent)
-                                let element= document.querySelectorAll('span.a-color-secondary.value bdi[dir="ltr"]')[0]
-                                if(element.textContent.length==17 && !element.textContent.includes('Order') && !element.textContent.includes('SHIP TO')&& !element.textContent.includes('PLACED BY') && !element.textContent.includes('Total')){
-                                    // order_numbers.push(element.innerText)
-                                    id=element.innerText
-                                }
-                            }
-                            res(id);
-                        })
-                    });
-                    let imagePath1 = path.join(__dirname, "..", "/assets", `/img2.png`);
-                    // await saveErrorImg(productViewPage);
-                    await productViewPage.screenshot({ path: imagePath1 });
-                    console.log('amazonOrderId-------', amazonOrderId);
-                    details = {
-                        asin: asin,
-                        amazon_order_number: amazonOrderId,
-                        purchaseOrderId: purchaseOrderId,
-                        customerOrderId: customerOrderId
-                    }
-                    console.log('details-----', details);
-                    if (details.amazon_order_number != '') {
-                        Service.update_amazon_order_number_API(result['ref_order_id'],details.amazon_order_number,cart_price);
-                        orderIdlogger.info({ asin: asin, purchaseOrderId: purchaseOrderId, amazon_order_number: amazonOrderId })
-                    }
-                }
-                else if(is_break_even_price_higher == false){
-                    details = {
-                        asin: asin,
-                        amazon_order_number: 'loss',
-                        purchaseOrderId: purchaseOrderId,
-                        customerOrderId: customerOrderId
-                    }
-                    console.log('details-----', details);
-                    if (details.amazon_order_number != '') {
-                        Service.update_amazon_order_number_API(result['ref_order_id'],details.amazon_order_number,cart_price);
-                        orderIdlogger.info({ asin: asin, purchaseOrderId: purchaseOrderId, amazon_order_number: 'loss' })
-                    }
                 }
             }
         }
