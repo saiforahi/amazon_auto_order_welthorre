@@ -267,7 +267,6 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
     // let productViewPage = 'page_' + pageIndex;
     let pages = await browser.pages()
     let productViewPage = pages[0];
-    let google = await browser.newPage()
     await productViewPage.authenticate({ username:result['ip_uid'], password:result['ip_pw'] });
     try {
         // await productViewPage.setRequestInterception(true);
@@ -282,7 +281,8 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         //console.log('-result-------------',result);
         productViewPage.setDefaultNavigationTimeout(0);
         await productViewPage.setViewport({ width: 1366, height: 700 });
-        let platefromUrl = 'https://www.amazon.com/dp/' + asin;
+        //let platefromUrl = 'https://www.amazon.com/dp/' + asin;
+        let platefromUrl = 'https://www.amazon.com/';
         console.log('product asin ---- ',asin)
         // try {
         //     await useProxy(productViewPage, curl);
@@ -300,14 +300,11 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         await productViewPage.goto(platefromUrl, {
             waitUntil: 'load', timeout: 0
         });
-        await google.goto("https://www.google.com", {
-            waitUntil: 'load', timeout: 0
-        });
         // if(Service.check_status()){
         //     await captchaSolver(productViewPage);
         // }
         let imagePath1 = path.join(__dirname, "..", "/assets", `/img01.png`);
-        await google.screenshot({ path: imagePath1 });
+        await productViewPage.screenshot({ path: imagePath1 });
         await captchaSolver(productViewPage);
         // if(await productViewPage.$('#glow-ingress-block')){
         //     await productViewPage.waitForTimeout(3000);
