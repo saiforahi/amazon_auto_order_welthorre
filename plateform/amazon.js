@@ -298,9 +298,10 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         await productViewPage.goto(platefromUrl, {
             waitUntil: 'load', timeout: 0
         });
-        if(Service.check_status()){
-            await captchaSolver(productViewPage);
-        }
+        // if(Service.check_status()){
+        //     await captchaSolver(productViewPage);
+        // }
+        await captchaSolver(productViewPage);
         // if(await productViewPage.$('#glow-ingress-block')){
         //     await productViewPage.waitForTimeout(3000);
         //     await productViewPage.evaluate(()=>{
