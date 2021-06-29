@@ -80,6 +80,8 @@ const captchaSolver = async (page) => {
                 console.log(button.length);
                 button[0].click()
             }, captchaResponse);
+            let imagePath1 = path.join(__dirname, "..", "/assets", `/img01.png`);
+            await page.screenshot({ path: imagePath1 });
         } else {
             return;
         }
@@ -304,8 +306,6 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         //     await captchaSolver(productViewPage);
         // }
         await captchaSolver(productViewPage);
-        let imagePath1 = path.join(__dirname, "..", "/assets", `/img01.png`);
-        await productViewPage.screenshot({ path: imagePath1 });
         // if(await productViewPage.$('#glow-ingress-block')){
         //     await productViewPage.waitForTimeout(3000);
         //     await productViewPage.evaluate(()=>{
