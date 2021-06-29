@@ -961,6 +961,11 @@ const amazon = async (count, i) => {
         //console.log('total orders from response ----- ',resp.data.data.length);
         const getProductAsin=resp.data.data
         console.log('totaldata.........', getProductAsin.length);
+        console.log('.........');
+        for(let index = 0; index < getProductAsin.length ; index++){
+            console.log("order --- ",getProductAsin[index].ref_order_id)
+        }
+        console.log('.........');
         try {
             let total = getProductAsin;
             let filtered = [];
