@@ -411,7 +411,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                 await productViewPage.waitForTimeout(4000);
                 //password
                 if(await productViewPage.$('#ap_password')){
-                    console.log('enter password...', 'Walmart123!');
+                    console.log('enter password...', result['password']);
                     await productViewPage.evaluate((PASSWORD) => {
                         return new Promise((res, rej) => {
                             let passwordEl = document.getElementById('ap_password');
