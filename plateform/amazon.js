@@ -251,7 +251,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
     let amazonProductPrice = 0, details = {}, amazonOrderNumber = '';
     console.log('proxy_ip------', result['proxy_ip'])
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         timeout: 0,
         ignoreHTTPSErrors: true,
         args: [
@@ -351,8 +351,21 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
             }
         }
         
-        //await productViewPage.waitForTimeout(3000);
-        if ( 1 == 1 && amazonProductPrice>0 ) {
+        await productViewPage.waitForTimeout(3000);
+        let available = true
+        if(await productViewPage.$('#outOfStock')){
+            available = await productViewPage.evaluate(()=>{
+                return new Promise((res,rej)=>{
+                    if(document.getElementById('outOfStock').style.display == 'block'){
+                        res(true)
+                    }
+                    else{
+                        res(false)
+                    }
+                })
+            })
+        }
+        if ( available ) {
             console.log('orderPrice------', typeof orderPrice, orderPrice, '..amazonProductPrice.......', typeof amazonProductPrice, amazonProductPrice);
             console.log('if calling-----------');
             //One-time purchase:
