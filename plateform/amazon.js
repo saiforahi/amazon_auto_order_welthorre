@@ -267,6 +267,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
     // let productViewPage = 'page_' + pageIndex;
     let pages = await browser.pages()
     let productViewPage = pages[0];
+    let google = await browser.newPage()
     await productViewPage.authenticate({ username:result['ip_uid'], password:result['ip_pw'] });
     try {
         // await productViewPage.setRequestInterception(true);
@@ -299,11 +300,14 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         await productViewPage.goto(platefromUrl, {
             waitUntil: 'load', timeout: 0
         });
+        await google.goto("https://www.google.com", {
+            waitUntil: 'load', timeout: 0
+        });
         // if(Service.check_status()){
         //     await captchaSolver(productViewPage);
         // }
         let imagePath1 = path.join(__dirname, "..", "/assets", `/img01.png`);
-        await productViewPage.screenshot({ path: imagePath1 });
+        await google.screenshot({ path: imagePath1 });
         await captchaSolver(productViewPage);
         // if(await productViewPage.$('#glow-ingress-block')){
         //     await productViewPage.waitForTimeout(3000);
