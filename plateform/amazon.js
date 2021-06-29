@@ -258,6 +258,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
             '--no-sandbox', 
             '--disable-setuid-sandbox', 
             '--disable-web-security',  
+            `--proxy-server=${result['proxy_ip']}`,
             //'--proxy-server='+result['proxy_ip'],
             '--disable-features=IsolateOrigins,site-per-process',
             '--disable-dev-shm-usage'
