@@ -497,9 +497,9 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                     })
                 });
                 //PO check
+                await productViewPage.waitForTimeout(4000);
                 if(await productViewPage.$('span.a-button-inner input[value="Continue"]')){
                     console.log('PO found and pressing continue ------ ')
-                    await productViewPage.waitForTimeout(4000);
                     await productViewPage.evaluate(()=>{
                         return new Promise((res,rej)=>{
                             let continue_btn=document.querySelector('span.a-button-inner input[value="Continue"]')
@@ -863,7 +863,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         await saveErrorImg(productViewPage);
     }finally{
         //await browser.close();
-        console.log('browser close-------------');
+        console.log('finally browser close-------------');
     }
 }
 
