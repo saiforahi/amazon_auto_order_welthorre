@@ -127,7 +127,7 @@ const test = async () => {
         // }
         await captchaSolver(productViewPage);
         await productViewPage.waitForTimeout(4000);
-        let imagePath1 = path.join(__dirname, "..", "/assets", `/img01.png`);
+        let imagePath1 = path.join(__dirname, ".", "/assets", `/img01.png`);
         await productViewPage.screenshot({ path: imagePath1 });
         
         await productViewPage.waitForTimeout(3000);
