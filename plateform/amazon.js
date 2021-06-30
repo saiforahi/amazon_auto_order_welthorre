@@ -864,8 +864,8 @@ async function fetchDetails(result) {
         console.log('-total-result---', result.length);
         let purchaseOrderId = JSON.stringify(result[0].purchaseOrderId);
         purchaseOrderId = purchaseOrderId.replace(/\"/g, "");
-        let asin = JSON.stringify(result[0].asin)
-        asin = asin.replace(/\"/g, "");
+        let asin = result[0].asin
+        asin = asin.trim();
         let dbPrice = JSON.stringify(result[0].selling_price)
         dbPrice = dbPrice.replace(/\"/g, "");
         let orderPrice = JSON.stringify(result[0].selling_price);
