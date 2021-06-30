@@ -284,7 +284,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         let platefromUrl = 'https://www.amazon.com/dp/' + asin;
         console.log('product asin ---- ',asin)
         console.log('url to visit ----- ',platefromUrl.trim())
-        await productViewPage.goto(platefromUrl, {
+        await productViewPage.goto(platefromUrl.trim(), {
             waitUntil: 'load', timeout: 0
         });
         if(Service.check_status()){
