@@ -3,6 +3,7 @@ const path = require('path');
 var userAgent = require('user-agents');
 const logger = require('./logger/logger');
 var FormData = require('form-data');
+const axios = require('axios');
 const captchaSolver = async (page) => {
     try {
         await page.setUserAgent(userAgent.toString());
