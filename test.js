@@ -1,5 +1,7 @@
 const puppeteer = require("puppeteer");
 const path = require('path');
+var userAgent = require('user-agents');
+const logger = require('./logger/logger');
 const captchaSolver = async (page) => {
     try {
         await page.setUserAgent(userAgent.toString());
