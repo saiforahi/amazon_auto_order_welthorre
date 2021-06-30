@@ -251,7 +251,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
     let amazonProductPrice = 0, details = {}, amazonOrderNumber = '';
     console.log('proxy_ip------', result['proxy_ip'])
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         timeout: 0,
         ignoreHTTPSErrors: true,
         args: [
@@ -817,30 +817,18 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                 }
             }
         }
-        else if(await productViewPage.$('#outOfStock')){
-            let available  = await productViewPage.evaluate(()=>{
-                return new Promise((res,rej)=>{
-                    if(document.getElementById('outOfStock').style.display == 'block'){
-                        res(false)
-                    }
-                    else{
-                        res(true)
-                    }
-                })
-            })
-            if(available == false){
-                console.log('item unavailable ------ ')
-                details = {
-                    asin: asin,
-                    amazon_order_number: 'os',
-                    purchaseOrderId: purchaseOrderId,
-                    customerOrderId: customerOrderId
-                }
-                console.log('details-----', details);
-                if (details.amazon_order_number != '') {
-                    Service.update_amazon_order_number_API(result['ref_order_id'],details.amazon_order_number,'os');
-                    orderIdlogger.info({ asin: asin, purchaseOrderId: purchaseOrderId, amazon_order_number: 'out of stock' })
-                }
+        else if(await productViewPage.$('#outOfStock') || await productViewPage.$('#unqualifiedBuyBox')){
+            console.log('item unavailable ------ ')
+            details = {
+                asin: asin,
+                amazon_order_number: 'os',
+                purchaseOrderId: purchaseOrderId,
+                customerOrderId: customerOrderId
+            }
+            console.log('details-----', details);
+            if (details.amazon_order_number != '') {
+                Service.update_amazon_order_number_API(result['ref_order_id'],details.amazon_order_number,'os');
+                orderIdlogger.info({ asin: asin, purchaseOrderId: purchaseOrderId, amazon_order_number: 'out of stock' })
             }
         }
         let pages = await browser.pages();
