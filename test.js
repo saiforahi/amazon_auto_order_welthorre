@@ -4,6 +4,18 @@ var userAgent = require('user-agents');
 const logger = require('./logger/logger');
 var FormData = require('form-data');
 const axios = require('axios');
+const saveErrorImg = async (page) => {
+    try {
+        let date = new Date();
+        date = moment(date, "YYYY-MM-DD,hh:mm A").format('YYYY-MM-DD,hh:mm A');
+        let imageName = date + ".jpg";
+        let imagePath = path.join(__dirname, "..", "/assets", `/${imageName}`);
+        await page.screenshot({ path: imagePath });
+    } catch (error) {
+        console.log('error-----', error);
+        logger.error({ message: error })
+    }
+}
 const captchaSolver = async (page) => {
     try {
         await page.setUserAgent(userAgent.toString());
