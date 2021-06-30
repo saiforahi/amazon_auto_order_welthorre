@@ -224,7 +224,7 @@ const saveErrorImg = async (page) => {
     }
 }
 
-const get_proxy = async (asin, purchaseOrderId, customerOrderId, result, pageIndex, orderPrice) => {
+const get_proxy = async (asin, purchaseOrderId, customerOrderId, result,  orderPrice) => {
     // let valid_curl=''
     // let gimmi_response = await axios({
     //     method:'get',
@@ -243,11 +243,11 @@ const get_proxy = async (asin, purchaseOrderId, customerOrderId, result, pageInd
     //         valid_curl=valid_curl.slice(0,valid_curl.length-4)
     //     }
     //     console.log('valid curl ---- ',valid_curl)
-    //     purchaseProduct('196.19.212.231:14806',asin, purchaseOrderId, customerOrderId, result, pageIndex, orderPrice)
+    //     purchaseProduct('196.19.212.231:14806',asin, purchaseOrderId, customerOrderId, result, 0, orderPrice)
     // }
-    purchaseProduct('196.19.212.231:14806',asin, purchaseOrderId, customerOrderId, result, pageIndex, orderPrice)
+    purchaseProduct('196.19.212.231:14806',asin, purchaseOrderId, customerOrderId, result,  orderPrice)
 }
-const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, result, pageIndex, orderPrice) => {
+const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, result,  orderPrice) => {
     let amazonProductPrice = 0, details = {}, amazonOrderNumber = '';
     console.log('proxy_ip------', result['proxy_ip'])
     const browser = await puppeteer.launch({
@@ -264,7 +264,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
             '--disable-dev-shm-usage'
         ]
     });
-    // let productViewPage = 'page_' + pageIndex;
+    // let productViewPage = 'page_' + 0;
     let pages = await browser.pages()
     let productViewPage = pages[0];
     await productViewPage.authenticate({ username:result['ip_uid'], password:result['ip_pw'] });
@@ -465,6 +465,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
             await productViewPage.waitForTimeout(4000);
             if(await productViewPage.$('span.a-button-inner input[value="Continue"]')){
                 console.log('PO found and pressing continue ------ ')
+                await productViewPage.waitForTimeout(4000);
                 await productViewPage.evaluate(()=>{
                     return new Promise((res,rej)=>{
                         let continue_btn=document.querySelector('span.a-button-inner input[value="Continue"]')
@@ -871,92 +872,42 @@ function waitForNextOrder(duration) {
     })
 }
 async function fetchDetails(result) {
-    // const loopCount = result.length; // 31 - 4 /// 30 - 3 // 29 -- 3
-    // for (let j = 0; j < loopCount; j = j + 10) {
-    //     let proxy = getProxy(result, j);
-    //     console.log('-proxy-----', proxy, j);
-    // }
-    /*const browser = await puppeteer.launch({
-        headless: false,
-        timeout: 0,
-        ignoreHTTPSErrors: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-web-security',
-            '--disable-features=IsolateOrigins,site-per-process']
-    });*/
-
     try {
-        // const page = await browser.newPage();
-        console.log('--next count----');
         console.log('-total-result---', result.length);
-        let start = 0;
-        let end = 1;
-        let isFetchingDone = 0;
-        let indexForPage = 0;
-        while (result.length > isFetchingDone) {
-            let allPromiseContent = [];
-            let filterRecords = result.filter((data, index) => {
-                if (start <= index && end > index) {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-            
-            for (let i = 0; i < filterRecords.length; i++) {
-                let pageIndex = i + indexForPage;
-                let purchaseOrderId = JSON.stringify(result[pageIndex].purchaseOrderId);
-                purchaseOrderId = purchaseOrderId.replace(/\"/g, "");
-                let asin = JSON.stringify(result[pageIndex].asin)
-                asin = asin.replace(/\"/g, "");
-                let dbPrice = JSON.stringify(result[pageIndex].selling_price)
-                dbPrice = dbPrice.replace(/\"/g, "");
-                let orderPrice = JSON.stringify(result[pageIndex].selling_price);
-                let customerOrderId = JSON.stringify(result[pageIndex].customerOrderId);
-                customerOrderId = customerOrderId.replace(/\"/g, "");
-                let amazon_order_number = JSON.stringify(result[pageIndex].amazon_order_number);
-                //amazon_order_number = amazon_order_number.replace(/\"/g, "");
-                amazon_order_number = '';
-                console.log('-check-', asin,orderPrice, amazon_order_number)
-                // let platefromUrl = 'https://www.amazon.com/dp/' + asin;
-                //    if(orderPrice > 0){
-                console.log('if 613----');
-                allPromiseContent.push(get_proxy(asin, purchaseOrderId, customerOrderId, result[pageIndex], pageIndex, orderPrice));
-                //    }
-            }
-            if (allPromiseContent && allPromiseContent.length > 0) {
-                await Promise.all(allPromiseContent)
-                    .then(async res => {
-                        console.log('--res--call')
-                        // Service.updateAmazonOrderNumber(res);
-                    })
-                    .catch(err => {
-                        console.log('err-103----------', err);
-                    });
-            }
-            // else{
-            //     await browser.newPage();
-            // }
-            // await browser.close();
-            //300000=5 min
-            await waitForNextOrder(300);
-            console.log('stopTime---------');
-            indexForPage = indexForPage + 1;
-            isFetchingDone = end + 1;
-            end = end + 1;
-            start = start + 1;
-            // break;
-        }
+        let purchaseOrderId = JSON.stringify(result[0].purchaseOrderId);
+        purchaseOrderId = purchaseOrderId.replace(/\"/g, "");
+        let asin = JSON.stringify(result[0].asin)
+        asin = asin.replace(/\"/g, "");
+        let dbPrice = JSON.stringify(result[0].selling_price)
+        dbPrice = dbPrice.replace(/\"/g, "");
+        let orderPrice = JSON.stringify(result[0].selling_price);
+        let customerOrderId = JSON.stringify(result[0].customerOrderId);
+        customerOrderId = customerOrderId.replace(/\"/g, "");
+        let amazon_order_number = JSON.stringify(result[0].amazon_order_number);
+        //amazon_order_number = amazon_order_number.replace(/\"/g, "");
+        amazon_order_number = '';
+        console.log('-check-', asin,orderPrice, amazon_order_number)
+        
+        await Promise.resolve(get_proxy(asin, purchaseOrderId, customerOrderId, result[0], orderPrice))
+        .then(async res => {
+            console.log('--res--call')
+            // Service.updateAmazonOrderNumber(res);
+        })
+        .catch(err => {
+            console.log('err-103----------', err);
+        });
+        console.log('stopTime---------');
+        
     } catch (error) {
         console.log('error--104-------', error);
         logger.error({ message: error })
     } finally {
         //await browser.close();
         console.log('orders left ---- ',result.length)
-        logger.info({ message: 'browser close process stop' })
         console.log('stop scraping-----------------', new Date().toLocaleTimeString());
     }
 }
-const amazon = async (count, i) => {
+const amazon = async () => {
     logger.info({message:'process start------'})
     console.log('calling API ----- ')
     //const getProductAsin = await Service.sendPostRequest();
@@ -970,41 +921,13 @@ const amazon = async (count, i) => {
         }
         console.log('.........');
         try {
-            let total = getProductAsin;
-            let filtered = [];
-            let isFetching = true;
-            while (isFetching) {
-                let start = 0;
-                let end = 99;
-                let temp = [];
-                filtered = total.filter((res, index) => {
-                    if (start <= index && end >= index) {
-                        return true;
-                    } else {
-                        temp.push(res);
-                        return false;
-                    }
-                });
-                total = temp;
-                console.log('total--', total.length);
-                console.log('filtered--', filtered.length);
-                await fetchDetails(filtered);
-                if (total.length === 0) {
-                    isFetching = false;
-                }
-                //break;
-            }
-
+            console.log('Processing order id ------ '+getProductAsin[0].ref_order_id);
+            await fetchDetails(getProductAsin)
         } catch (error) {
             console.log('364..error..........', error);
             logger.error({ message: error })
         }
     });
-    // let getProductAsin = [{
-    //     asin: 'B071G7Y8J2',
-    //     orderPrice: '15.24'
-    // }];
-    
 }
 // amazon();
 module.exports = amazon;
