@@ -281,7 +281,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         //console.log('-result-------------',result);
         productViewPage.setDefaultNavigationTimeout(0);
         await productViewPage.setViewport({ width: 1366, height: 700 });
-        let platefromUrl = 'https://www.amazon.com/dp/' + asin;
+        let platefromUrl = 'https://www.amazon.com/dp/' + String(asin).trim();
         console.log('product asin ---- ',asin)
         console.log('url to visit ----- ',platefromUrl.trim())
         await productViewPage.goto(platefromUrl.trim(), {
