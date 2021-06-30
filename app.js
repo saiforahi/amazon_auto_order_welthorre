@@ -23,7 +23,6 @@ app.get("/", (req, res) => {
     res.send("root route");
 });
 scrapper();
-
 app.listen(port, (req, res) => {
     console.log(`server listening on port: ${port}`);
 });
