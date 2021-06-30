@@ -1,7 +1,7 @@
 const schedule = require('./plateform/amazon');
 //const schedule = require('./orderSchedule')
-const test = require('./test');
+//const test = require('./test');
 const scrapper = async () => {
-    test();
+    schedule();
 }
 module.exports = scrapper;
