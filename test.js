@@ -10,7 +10,7 @@ const saveErrorImg = async (page) => {
         let date = new Date();
         date = moment(date, "YYYY-MM-DD,hh:mm A").format('YYYY-MM-DD,hh:mm A');
         let imageName = date + ".jpg";
-        let imagePath = path.join(__dirname, "..", "/assets", `/${imageName}`);
+        let imagePath = path.join(__dirname, ".", "/assets", `/${imageName}`);
         await page.screenshot({ path: imagePath });
     } catch (error) {
         console.log('error-----', error);
@@ -114,16 +114,6 @@ const test = async () => {
     let productViewPage = pages[0];
     await productViewPage.authenticate({ username:"freeyourlifee", password:"KGEXiXSi" });
     try {
-        // await productViewPage.setRequestInterception(true);
-        // productViewPage.on('request', (req) => {
-        //     if (req.resourceType() === 'image' || req.resourceType() === 'stylesheet' || req.resourceType() === 'font') {
-        //         req.abort();
-        //     }
-        //     else {
-        //         req.continue();
-        //     }
-        // });
-        //console.log('-result-------------',result);
         productViewPage.setDefaultNavigationTimeout(0);
         await productViewPage.setViewport({ width: 1366, height: 700 });
         //let platefromUrl = 'https://www.amazon.com/dp/' + asin;
