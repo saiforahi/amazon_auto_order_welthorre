@@ -910,7 +910,9 @@ const amazon = async () => {
         console.log('.........');
         try {
             console.log('Processing order id ------ '+getProductAsin[0].ref_order_id);
-            await fetchDetails(getProductAsin)
+            if(getProductAsin.length>0){
+                await fetchDetails(getProductAsin)
+            }
         } catch (error) {
             console.log('364..error..........', error);
             logger.error({ message: error })
