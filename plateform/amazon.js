@@ -638,7 +638,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                 })
             }
             console.log('cart price ---- ',cart_price)
-            if(1 == 1 && is_break_even_price_higher == true ){
+            if(is_break_even_price_higher == true || result['process_loss'] == "yes"){
                 await productViewPage.waitForTimeout(5000)
                 console.log('pressing payment continue')
                 if(await productViewPage.$('input[name="ppw-widgetEvent:SetPaymentPlanSelectContinueEvent"')){
@@ -672,71 +672,11 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                         res()
                     })
                 })
-                // console.log('ContinueButton click for address');
-                // await productViewPage.waitForNavigation({ waitUntil: 'domcontentloaded' })
-                // await productViewPage.waitForTimeout(3000);
-                // if (await productViewPage.$('.a-button.a-button-span12.a-button-primary.pmts-button-input')) {
-                //     await productViewPage.evaluate(() => {
-                //         return new Promise((res, rej) => {
-                //             //.a-button.a-button-span12.a-button-primary.pmts-button-input
-                //             let ContinueButton = document.querySelectorAll('.a-button.a-button-span12.a-button-primary.pmts-button-input');
-                //             console.log('continue----', ContinueButton);
-                //             if (ContinueButton && ContinueButton.length > 0) {
-                //                 ContinueButton[0].click();
-                //             }
-                //             res();
-                //         })
-                //     })
-                // }
-                //console.log('Place your order page');
-                // Place your order  #placeYourOrder
-                //document.querySelectorAll('.a-button-inner.a-button-span12.buy-button-height-1')[0].click()
-
-                // await productViewPage.waitForTimeout(3000);
-                //payment button add
-                //console.log('order button ');
-                // await productViewPage.evaluate(() => {
-                //     return new Promise((res, rej) => {
-                //         let ContinueButton = document.querySelectorAll('#orderSummaryPrimaryActionBtn input');
-                //         console.log('continue----', ContinueButton);
-                //         if (ContinueButton && ContinueButton.length > 0) {
-                //             ContinueButton[0].click();
-                //         }
-                //         res();
-                //     })
-                // })
-                
-                // await productViewPage.waitForNavigation({waitUntil:'domcontentloaded'});
-                // await productViewPage.waitForTimeout(4000);
-                // await productViewPage.evaluate(() => {
-                //     return new Promise((res, rej) => {
-                //         //#submitOrderButtonId input
-                //         let ContinueButton = document.querySelectorAll('#submitOrderButtonId span.a-button-inner input');
-                //         console.log('continue----', ContinueButton);
-                //         if (ContinueButton && ContinueButton.length > 0) {
-                //             ContinueButton[0].click();
-                //         }
-                //         res();
-                //     })
-                // })
-                //Place this duplicate order  
-                //a-button-text
-                //console.log('palce orde.duplicate...');
-                // await productViewPage.waitForTimeout(4000);
-                // await productViewPage.evaluate(() => {
-                //     return new Promise((res, rej) => {
-                //         let buttonSelector = document.querySelectorAll('.a-button-text');
-                //         console.log('continue----', buttonSelector);
-                //         if (buttonSelector && buttonSelector.length > 0) {
-                //             buttonSelector[0].click();
-                //         }
-                //         res();
-                //     })
-                // })
 
                 console.log('order view link show.');
                 //orderId orderlink
                 await productViewPage.waitForNavigation({waitUntil:'domcontentloaded'});
+                await productViewPage.waitForTimeout(4000);
                 await productViewPage.goto('https://www.amazon.com/gp/css/order-history?ref_=abn_bnav_ya_ad_orders',{
                     waitUntil: 'load', timeout: 0
                 })
@@ -899,7 +839,7 @@ const amazon = async () => {
     logger.info({message:'process start------'})
     console.log('calling API ----- ')
     //const getProductAsin = await Service.sendPostRequest();
-    axios.post('https://www.wealthorre.com/api/v1/getAmazonOrderData', {"amazon_buyer_account":"roland"}).then(async(resp)=>{
+    axios.post('https://app.wealthorre.com/api/v1/getAmazonOrderData', {"amazon_buyer_account":"roland"}).then(async(resp)=>{
         //console.log('total orders from response ----- ',resp.data.data.length);
         const getProductAsin=resp.data.data
         console.log('totaldata.........', getProductAsin.length);
