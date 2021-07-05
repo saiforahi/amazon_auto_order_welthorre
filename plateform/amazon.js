@@ -200,8 +200,8 @@ const otpResolver = async (page,result) => {
             //await page.waitForTimeout(4000);
             await page.waitForNavigation({ waitUntil: 'load' })
 
-            let imagePath1 = path.join(__dirname, "..", "/assets", `/otp2.png`);
-            await page.screenshot({ path: imagePath1 });
+            let imagePath2 = path.join(__dirname, "..", "/assets", `/otp2.png`);
+            await page.screenshot({ path: imagePath2 });
             console.log('setting otpcode --------', optCode);
             await page.evaluate(async (optCode) => {
                 //.a-input-text.a-span12.cvf-widget-input.cvf-widget-input-code
