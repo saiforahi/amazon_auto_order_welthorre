@@ -140,7 +140,7 @@ class Service {
     static async sendPostRequest (){
         return new Promise(async(res,rej)=>{
             try {
-                const resp = await axios.post('https://www.wealthorre.com/api/v1/getAmazonOrderData', {amazon_buyer_account:process.env.EMAIL});
+                const resp = await axios.post('https://app.wealthorre.com/api/v1/getAmazonOrderData', {amazon_buyer_account:process.env.EMAIL});
                 console.log('orders from response ----- ',resp.data.data.length);
                 res(resp.data.data)
                 //return resp.data.data
@@ -154,7 +154,7 @@ class Service {
     static async update_amazon_order_number_API (order_id,order_number,cart_price){
         try {
             console.log('api post data ---- ',{order_id:order_id,order_number:order_number,purchaseCost:cart_price})
-            const resp = await axios.post('https://www.wealthorre.com/api/v1/order', {order_id:order_id,order_number:order_number,purchaseCost:cart_price});
+            const resp = await axios.post('https://app.wealthorre.com/api/v1/order', {order_id:order_id,order_number:order_number,purchaseCost:cart_price});
             if(resp && resp.statusText == "OK" && resp.data.data.order){
                 console.log(resp.data.data.order);
             }
