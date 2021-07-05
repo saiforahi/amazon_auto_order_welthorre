@@ -174,7 +174,7 @@ const otpResolver = async (page,result) => {
             let optCode = res.data.token;
             console.log('optCode--------', optCode);
             
-            await productViewPage.waitForTimeout(4000);
+            await page.waitForTimeout(4000);
             let imagePath1 = path.join(__dirname, "..", "/assets", `/otp1.png`);
             await page.screenshot({ path: imagePath1 });
             await page.waitForTimeout(4000);
