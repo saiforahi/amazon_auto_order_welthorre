@@ -174,11 +174,12 @@ const otpResolver = async (page,result) => {
             let optCode = res.data.token;
             console.log('optCode--------', optCode);
             
-            await page.waitForTimeout(4000);
-            let imagePath1 = path.join(__dirname, "..", "/assets", `/otp1.png`);
-            await page.screenshot({ path: imagePath1 });
-            await page.waitForTimeout(4000);
+            
+            // let imagePath1 = path.join(__dirname, "..", "/assets", `/otp1.png`);
+            // await page.screenshot({ path: imagePath1 });
+            // await page.waitForTimeout(4000);
             if(await page.$('input[name="otpDeviceContext"]')){
+                await page.waitForTimeout(4000);
                 console.log('setting option --------');
                 await page.evaluate(() => {
                     //auth-send-code  continue
@@ -188,20 +189,23 @@ const otpResolver = async (page,result) => {
                     }
                 });
             }
-            await page.waitForTimeout(4000);
-            await page.evaluate(() => {
-                //auth-send-code  continue
-                let stepVerification = document.querySelectorAll('#auth-send-code');
-                if (stepVerification && stepVerification.length > 0) {
-                    stepVerification[0].click();
-
-                }
-            });
+            if(await page.$('#auth-send-code')){
+                await page.waitForTimeout(4000);
+                await page.evaluate(() => {
+                    //auth-send-code  continue
+                    let stepVerification = document.querySelectorAll('#auth-send-code');
+                    if (stepVerification && stepVerification.length > 0) {
+                        stepVerification[0].click();
+    
+                    }
+                });
+                await page.waitForNavigation({ waitUntil: 'load' })
+            }
             //await page.waitForTimeout(4000);
-            await page.waitForNavigation({ waitUntil: 'load' })
+            
 
-            let imagePath2 = path.join(__dirname, "..", "/assets", `/otp2.png`);
-            await page.screenshot({ path: imagePath2 });
+            // let imagePath2 = path.join(__dirname, "..", "/assets", `/otp2.png`);
+            // await page.screenshot({ path: imagePath2 });
             console.log('setting otpcode --------', optCode);
             await page.evaluate(async (optCode) => {
                 //.a-input-text.a-span12.cvf-widget-input.cvf-widget-input-code
@@ -301,7 +305,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         }
         //await captchaSolver(productViewPage);
         await productViewPage.waitForTimeout(4000);
-        let imagePath1 = path.join(__dirname, "..", "/assets", `/img01.png`);
+        let imagePath1 = path.join(__dirname, "..", "/assets", `/product.png`);
         await productViewPage.screenshot({ path: imagePath1 });
         
         await productViewPage.waitForTimeout(3000);
@@ -645,7 +649,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
 
                 console.log('amazonOrderId-----88--');
                 await productViewPage.waitForTimeout(3000)
-                let imagePath = path.join(__dirname, "..", "/assets", `/img1.png`);
+                let imagePath = path.join(__dirname, "..", "/assets", `/order_history_page.png`);
                 // await saveErrorImg(productViewPage);
                 await productViewPage.screenshot({ path: imagePath });
                 // await productViewPage.waitForSelector("#ordersContainer .a-box-group.a-spacing-base .a-fixed-right-grid-col.actions.a-col-right", { visible: true });
@@ -671,9 +675,6 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                         res(id);
                     })
                 });
-                let imagePath1 = path.join(__dirname, "..", "/assets", `/img2.png`);
-                // await saveErrorImg(productViewPage);
-                await productViewPage.screenshot({ path: imagePath1 });
                 console.log('amazonOrderId-------', amazonOrderId);
                 details = {
                     asin: asin,
