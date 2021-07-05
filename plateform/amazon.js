@@ -173,8 +173,13 @@ const otpResolver = async (page,result) => {
         if (res && res.data) {
             let optCode = res.data.token;
             console.log('optCode--------', optCode);
+            
+            await productViewPage.waitForTimeout(4000);
+            let imagePath1 = path.join(__dirname, "..", "/assets", `/otp1.png`);
+            await page.screenshot({ path: imagePath1 });
             await page.waitForTimeout(4000);
             if(await page.$('input[name="otpDeviceContext"]')){
+                console.log('setting option --------');
                 await page.evaluate(() => {
                     //auth-send-code  continue
                     let stepVerification = document.querySelectorAll('input[name="otpDeviceContext"]');
@@ -194,6 +199,10 @@ const otpResolver = async (page,result) => {
             });
             //await page.waitForTimeout(4000);
             await page.waitForNavigation({ waitUntil: 'load' })
+
+            let imagePath1 = path.join(__dirname, "..", "/assets", `/otp2.png`);
+            await page.screenshot({ path: imagePath1 });
+            console.log('setting otpcode --------', optCode);
             await page.evaluate(async (optCode) => {
                 //.a-input-text.a-span12.cvf-widget-input.cvf-widget-input-code
                 let enterOtp = document.querySelectorAll('#auth-mfa-otpcode');
@@ -294,32 +303,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
         await productViewPage.waitForTimeout(4000);
         let imagePath1 = path.join(__dirname, "..", "/assets", `/img01.png`);
         await productViewPage.screenshot({ path: imagePath1 });
-        // if(await productViewPage.$('#glow-ingress-block')){
-        //     await productViewPage.waitForTimeout(3000);
-        //     await productViewPage.evaluate(()=>{
-        //         return new Promise((res,rej)=>{
-        //             let addressbtn=document.getElementById('glow-ingress-block')
-        //             addressbtn.click()
-        //             res()
-        //         })
-        //     })
-        // }
         
-        // await productViewPage.waitForTimeout(3000)
-        // if(await productViewPage.$('button[name="glowDoneButton"]')){
-            
-        //     await productViewPage.evaluate(()=>{
-        //         return new Promise((res,rej)=>{
-        //             let div=document.getElementById('GLUXZipInputSection')
-        //             let inputEl=div.childNodes[0].querySelector('input')
-        //             inputEl.value='32826'
-        //             let doneBTN=document.querySelector('button[name="glowDoneButton"]')
-        //             doneBTN.click()
-        //             res()
-        //         })
-        //     })
-        //     // await productViewPage.
-        // }
         await productViewPage.waitForTimeout(3000);
         if (await productViewPage.$('#priceblock_ourprice')) {
             let priceSelector = await productViewPage.$$('#priceblock_ourprice');
@@ -434,17 +418,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
             await secondCaptchaSolver(productViewPage)
             console.log('click to continue');
             await productViewPage.waitForTimeout(4000);
-            //confirm password
-            // console.log('Confirm password');
-            // await productViewPage.evaluate((PASSWORD) => {
-            //     return new Promise((res, rej) => {
-            //         let passwordEl = document.getElementById('ap_password');
-            //         if (passwordEl) {
-            //             passwordEl.value = PASSWORD;
-            //         }
-            //         res();
-            //     })
-            // }, 'Walmart123!');
+            
             await otpResolver(productViewPage,result);
             //select address for Deliver
             console.log('result--------', result);
@@ -563,19 +537,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                     })
                 })
             }
-            // await productViewPage.evaluate(() => {
-            //     return new Promise((res, rej) => {
-            //         let DeliveryAddressButton = document.querySelectorAll('.ship-to-this-address.a-button a');
-            //         console.log(DeliveryAddressButton);
-            //         if (DeliveryAddressButton.length > 0) {
-            //             DeliveryAddressButton[0].click();
-
-            //         }
-            //         res()
-            //     })
-            // });
             
-            //await productViewPage.waitForNavigation({waitUntil : 'domcontentloaded'})
             await productViewPage.waitForTimeout(5000)
             if(await productViewPage.$('input[name="ppw-instrumentRowSelection"')){
                 console.log('payment option found ---- ')
@@ -680,24 +642,6 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                 await productViewPage.goto('https://www.amazon.com/gp/css/order-history?ref_=abn_bnav_ya_ad_orders',{
                     waitUntil: 'load', timeout: 0
                 })
-                // await productViewPage.waitForTimeout(4000);
-                // await productViewPage.hover('#nav-link-yourAccount')
-                // await productViewPage.waitForTimeout(4000);
-                // await productViewPage.evaluate(() => {
-                //     return new Promise((res, rej) => {
-                //         //a-link-emphasis
-                //         let yourOrders= document.getElementById('nav_prefetch_yourorders')
-                //         let selector = document.querySelectorAll('#widget-accountLevelActions div.celwidget span.celwidget a.a-link-emphasis');
-                //         console.log('continue----', selector);
-                //         if (selector && selector.length > 0) {
-                //             selector[0].click();
-                //         }
-                //         else if(yourOrders){
-                //             yourOrders.click()
-                //         }
-                //         res();
-                //     })
-                // })
 
                 console.log('amazonOrderId-----88--');
                 await productViewPage.waitForTimeout(3000)
