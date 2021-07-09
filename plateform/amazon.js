@@ -387,7 +387,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
 
                     res();
                 })
-            }, result['amazon_user_name']);
+            }, result['amazon_user_name'].trim());
             await productViewPage.waitForTimeout(4000);
             //password
             if(await productViewPage.$('#ap_password')){
@@ -404,7 +404,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
 
                         res();
                     })
-                }, result['password']);
+                }, result['password'].trim());
             }
 
             //
@@ -426,9 +426,9 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
             await otpResolver(productViewPage,result);
             //select address for Deliver
             console.log('result--------', result);
-            await productViewPage.waitForNavigation({ timeout: 0 });
+            await productViewPage.waitForNavigation({timeout:0});
             //turbo-checkout-pyo-button
-            await productViewPage.waitForTimeout(4000);
+            //await productViewPage.waitForTimeout(4000);
             await productViewPage.evaluate(() => {
                 return new Promise((res, rej) => {
                     let placeButton = document.querySelectorAll('#turbo-checkout-pyo-button');
@@ -453,6 +453,7 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                 })
             }
             //shipper add
+            await productViewPage.waitForNavigation({timeout:0});
             if(await productViewPage.$$('.a-color-base.clickable-heading.expand-collapsed-panel-trigger').length>0){
                 console.log('adding shipper ------ ')
                 await productViewPage.waitForTimeout(4000);
@@ -468,18 +469,21 @@ const purchaseProduct = async (curl,asin, purchaseOrderId, customerOrderId, resu
                 });
             }
 
-            await productViewPage.waitForTimeout(4000);
-            await productViewPage.evaluate(() => {
-                return new Promise((res, rej) => {
-                    let addAddresslink = document.querySelectorAll('#add-new-address-popover-link');
-                    console.log(addAddresslink);
-                    if (addAddresslink.length > 0) {
-                        addAddresslink[0].click();
-                    }
-                    res()
-                })
-            });
-
+            
+            if(await productViewPage.$('#add-new-address-popover-link')){
+                await productViewPage.waitForTimeout(4000);
+                await productViewPage.evaluate(() => {
+                    return new Promise((res, rej) => {
+                        let addAddresslink = document.querySelectorAll('#add-new-address-popover-link');
+                        console.log(addAddresslink);
+                        if (addAddresslink.length > 0) {
+                            addAddresslink[0].click();
+                        }
+                        res()
+                    })
+                });
+            }
+            
             //Add a new address
             await productViewPage.waitForTimeout(4000);
             await productViewPage.evaluate((result) => {
